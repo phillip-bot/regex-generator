@@ -1,0 +1,19 @@
+{
+  "name": "regex-tree",
+  "version": "1.0.0",
+  "description": "Represent regex expressions as syntax trees",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Greg Chan",
+  "license": "ISC",
+  "devDependencies": {
+    "eslint": "^6.2.1",
+    "eslint-config-xo": "^0.26.0"
+  },
+  "dependencies": {
+    "seedrandom": "^3.0.3",
+    "uuid": "^3.3.3"
+  }
+}
