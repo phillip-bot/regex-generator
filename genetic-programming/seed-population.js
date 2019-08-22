@@ -1,9 +1,6 @@
 'use strict';
 
-const seedrandom = require('seedrandom');
-const uuid = require('uuid');
-
-const BinaryOperator = require('./lib/binary-operator');
+const BinaryOperator = require('../lib/binary-operator');
 const {
   Bar,
   Concat,
@@ -14,33 +11,31 @@ const {
   Question,
   Range,
   Star
-} = require('./index');
+} = require('../index');
+const utils = require('../lib/utils');
 
-let random;
 /**
  * @param {Number} size - population size
  * @param {String} seed - a seed for random number generation
  * @returns {Array<Node>} an array of Regex trees
  */
-const seedPopulation = function (size, seed = `seed-${uuid()}`) {
-  console.log(seed);
-  random = seedrandom(seed);
+const seedPopulation = function (size) {
   const literals = generateLiterals();
   const operations = [Bar, Concat, Group, List, Plus, Question, Range, Star];
 
   const population = [];
 
   for (let i = 0; i < size; i++) {
-    const Operation = generateRandomFromArray(operations);
+    const Operation = utils.getRandomValueFromArray(operations);
     let operation;
 
     if (Operation.prototype instanceof BinaryOperator) {
-      const left = generateRandomFromArray(literals);
-      const right = generateRandomFromArray(literals);
+      const left = utils.getRandomValueFromArray(literals);
+      const right = utils.getRandomValueFromArray(literals);
 
       operation = new Operation(left, right);
     } else {
-      const literal = generateRandomFromArray(literals);
+      const literal = utils.getRandomValueFromArray(literals);
       operation = new Operation(literal);
     }
 
@@ -49,11 +44,6 @@ const seedPopulation = function (size, seed = `seed-${uuid()}`) {
 
   return population;
 };
-
-function generateRandomFromArray(array) {
-  const randomIndex = Math.floor(array.length * random());
-  return array[randomIndex];
-}
 
 function generateLiterals() {
   const characters =
