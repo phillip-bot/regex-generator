@@ -1,11 +1,16 @@
 'use strict';
 
 const BinaryOperator = require('../lib/binary-operator');
+const Literal = require('../lib/literal');
 const Operator = require('../lib/operator');
 const Range = require('../lib/range');
 const utils = require('../lib/utils');
 
 const crossover = function (a, b) {
+  if (a instanceof Literal || b instanceof Literal) {
+    return [a, b];
+  }
+
   const aNodes = treeToArray(a);
   const bNodes = treeToArray(b);
 
