@@ -50,19 +50,7 @@ function filterOperators(node) {
 }
 
 function treeToArray(root) {
-  const nodes = [];
-  const queue = [root];
-
-  while (queue.length > 0) {
-    const node = queue.shift();
-    nodes.push(node);
-
-    node.children.forEach(function (child) {
-      queue.push(child);
-    });
-  }
-
-  return nodes;
+  return root.toArray();
 }
 
 module.exports = {crossover};

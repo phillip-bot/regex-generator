@@ -1,19 +1,8 @@
 'use strict';
 
-const {
-  Bar,
-  Concat,
-  Group,
-  List,
-  Literal,
-  Plus,
-  Question,
-  Range,
-  Star,
-  treeToRegex
-} = require('./');
-
+const {BinaryOperator, Operator, treeToRegex} = require('./');
 const utils = require('./lib/utils');
+const random = require('./lib/random');
 const {setSeed} = require('./lib/random');
 const {seedPopulation} = require('./genetic-programming/seed-population');
 const {crossover} = require('./genetic-programming/crossover');
@@ -21,7 +10,7 @@ const {fitness} = require('./genetic-programming/fitness');
 
 const REPLICATION = 0.3;
 const MUTATION = 0.2;
-const CROSSOVER = 0.25;
+const CROSSOVER = 0.2;
 
 const POPULATION_SIZE = 10000;
 
@@ -40,7 +29,7 @@ const examples = new Map([
     let population = seedPopulation(POPULATION_SIZE);
     let averageScore = 4;
 
-    for (let generation = 0; averageScore > 1.5; generation++) {
+    for (let generation = 0; averageScore > 0; generation++) {
       console.log(`Generation: ${generation}`);
       console.log(`Average Score: ${averageScore}`);
       console.log('...Evaluating population');
@@ -59,12 +48,12 @@ const examples = new Map([
         population.length * CROSSOVER
       );
       const crossoverCandidates = scores.slice(0, crossoverSize);
-      const mutationCandidates = scores.slice(0, scores.length * MUTATION);
       const replicationCandidates = scores.slice(
         0,
         scores.length * REPLICATION
       );
 
+      // Cross Over
       console.log('...Crossing over fit members');
       console.log(`...Cross over candidates: ${crossoverCandidates.length}`);
 
@@ -77,6 +66,14 @@ const examples = new Map([
 
       console.log('...Computing new average');
 
+      // Mutation
+      const mutationCandidates = scores
+        .slice(0, scores.length * MUTATION)
+        .map(({node}) => node);
+      const mutatePopulation = mutate({
+        population: mutationCandidates
+      });
+
       // Termination condition
       let sum = 0;
       scores.slice(0, scores.length * 0.05).forEach(function ({score}) {
@@ -86,7 +83,8 @@ const examples = new Map([
 
       population = [
         ...crossoverPopulation,
-        ...replicationCandidates.map(({node}) => node)
+        ...replicationCandidates.map(({node}) => node),
+        ...mutatePopulation
       ];
     }
 
@@ -140,4 +138,28 @@ function calculateFitness({population, examples}) {
   });
 
   return scores;
+}
+
+function mutate({population}) {
+  return population.map(function (node) {
+    const newNode = node.copy();
+    const mutation = seedPopulation(1)[0];
+    const operators = newNode
+      .toArray()
+      .filter(node => node instanceof Operator);
+    const parent = utils.getRandomValueFromArray(operators).copy();
+
+    if (parent instanceof BinaryOperator) {
+      if (random.number() > 0) {
+        parent.left = mutation;
+      } else {
+        parent.right = mutation;
+      }
+
+      return newNode;
+    }
+
+    parent.node = mutation;
+    return newNode;
+  });
 }
