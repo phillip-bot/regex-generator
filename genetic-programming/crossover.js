@@ -1,9 +1,6 @@
 'use strict';
 
-const BinaryOperator = require('../lib/binary-operator');
-const Literal = require('../lib/literal');
-const Operator = require('../lib/operator');
-const Range = require('../lib/range');
+const {Literal, Range, Operator, BinaryOperator} = require('../lib/regex');
 const random = require('../lib/random');
 const utils = require('../lib/utils');
 

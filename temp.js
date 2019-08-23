@@ -1,6 +1,6 @@
 'use strict';
 
-const {BinaryOperator, Operator, treeToRegex} = require('./');
+const {BinaryOperator, Operator, treeToRegex} = require('./lib/regex');
 const utils = require('./lib/utils');
 const random = require('./lib/random');
 const {setSeed} = require('./lib/random');

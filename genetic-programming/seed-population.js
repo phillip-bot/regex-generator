@@ -1,6 +1,5 @@
 'use strict';
 
-const BinaryOperator = require('../lib/binary-operator');
 const {
   Bar,
   Concat,
@@ -10,8 +9,10 @@ const {
   Plus,
   Question,
   Range,
-  Star
-} = require('../index');
+  Star,
+
+  BinaryOperator
+} = require('../lib/regex');
 const utils = require('../lib/utils');
 
 /**
