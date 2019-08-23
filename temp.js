@@ -1,12 +1,13 @@
 'use strict';
 
-const {BinaryOperator, Operator, treeToRegex} = require('./lib/regex');
-const utils = require('./lib/utils');
-const random = require('./lib/random');
+const {treeToRegex} = require('./lib/regex');
 const {setSeed} = require('./lib/random');
+
+const utils = require('./genetic-programming/utils');
 const {seedPopulation} = require('./genetic-programming/seed-population');
 const {crossover} = require('./genetic-programming/crossover');
 const {fitness} = require('./genetic-programming/fitness');
+const {mutate} = require('./genetic-programming/mutate');
 
 const REPLICATION = 2.0;
 const MUTATION = 0.3;
@@ -90,9 +91,7 @@ const examples = new Map([
       const mutationCandidates = scores
         .slice(0, mutationSize)
         .map(({node}) => node);
-      const mutatePopulation = mutate({
-        population: mutationCandidates
-      });
+      const mutatePopulation = mutateAll(mutationCandidates);
 
       console.log(`...Mutation population size: ${mutatePopulation.length}`);
 
@@ -162,26 +161,6 @@ function calculateFitness({population, examples}) {
   return scores;
 }
 
-function mutate({population}) {
-  return population.map(function (node) {
-    const newNode = node.copy();
-    const mutation = seedPopulation(1)[0];
-    const operators = newNode
-      .toArray()
-      .filter(node => node instanceof Operator);
-    const parent = utils.getRandomValueFromArray(operators).copy();
-
-    if (parent instanceof BinaryOperator) {
-      if (random.number() > 0) {
-        parent.left = mutation;
-      } else {
-        parent.right = mutation;
-      }
-
-      return newNode;
-    }
-
-    parent.node = mutation;
-    return newNode;
-  });
+function mutateAll(population) {
+  return population.map(mutate);
 }
