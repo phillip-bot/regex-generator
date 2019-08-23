@@ -8,30 +8,41 @@ const {seedPopulation} = require('./genetic-programming/seed-population');
 const {crossover} = require('./genetic-programming/crossover');
 const {fitness} = require('./genetic-programming/fitness');
 
-const REPLICATION = 0.3;
-const MUTATION = 0.2;
-const CROSSOVER = 0.2;
+const REPLICATION = 2.0;
+const MUTATION = 0.3;
+const CROSSOVER = 0.5;
 
-const POPULATION_SIZE = 10000;
+const POPULATION_SIZE = 1000;
+const DELTA_THRESHOLD = 0.0001;
+const ITERATION_THRESHOLD = 4;
 
 const examples = new Map([
   ['!event test 4pm et', '4pm et'],
   ['!event test 4 pm et', '4 pm et'],
-  ['!event test 2:00 pm et', '2:00 pm et'],
-  ['!event test 2:00pm et', '2:00pm et'],
-  ['!event test 12:00pm mt', '12:00pm mt'],
-  ['!event test 1:30am pt', '1:30am pt']
+  ['!event test 2:00 pm et', '2:00 pm  et'],
+  ['!event test 3:52 pm et', '3:52 pm et'],
+  ['!event test 2:00pm pt', '2:00pm pt'],
+  ['!event test 1:30am pt', '1:30am pt'],
+  ['!event test 9:21am pt', '9:21am pt']
 ]);
 
 (function () {
   try {
     setSeed('pizza');
     let population = seedPopulation(POPULATION_SIZE);
-    let averageScore = 4;
+    let averageScore = Infinity;
+    let delta = Infinity;
+    let iterations = 1;
+    const best = [];
 
-    for (let generation = 0; averageScore > 0; generation++) {
+    for (
+      let generation = 0;
+      delta > DELTA_THRESHOLD || iterations < ITERATION_THRESHOLD;
+      generation++
+    ) {
       console.log(`Generation: ${generation}`);
-      console.log(`Average Score: ${averageScore}`);
+      console.log(`...Population size: ${population.length}`);
+      console.log(`...Average score: ${averageScore}`);
       console.log('...Evaluating population');
 
       const scores = calculateFitness({
@@ -39,14 +50,14 @@ const examples = new Map([
         examples
       });
 
-      console.log(`...Population length ${population.length}`);
-      console.log(`...Scores length ${scores.length}`);
+      console.log(`...Scores size: ${scores.length}`);
 
       // Selection
-      const crossoverSize = Math.max(
-        scores.length * CROSSOVER,
-        population.length * CROSSOVER
+      const crossoverSize = Math.min(
+        (scores.length * CROSSOVER) / 2,
+        (POPULATION_SIZE * CROSSOVER) / 2
       );
+
       const crossoverCandidates = scores.slice(0, crossoverSize);
       const replicationCandidates = scores.slice(
         0,
@@ -55,7 +66,9 @@ const examples = new Map([
 
       // Cross Over
       console.log('...Crossing over fit members');
-      console.log(`...Cross over candidates: ${crossoverCandidates.length}`);
+      console.log(
+        `...Cross over candidates size: ${crossoverCandidates.length}`
+      );
 
       let crossoverPopulation = [];
       crossoverCandidates.forEach(function (a) {
@@ -64,23 +77,39 @@ const examples = new Map([
         crossoverPopulation = [...crossoverPopulation, ...candidates];
       });
 
+      console.log(
+        `...Cross over population size: ${crossoverPopulation.length}`
+      );
       console.log('...Computing new average');
 
       // Mutation
+      const mutationSize = Math.min(
+        scores.length * MUTATION,
+        POPULATION_SIZE * MUTATION
+      );
       const mutationCandidates = scores
-        .slice(0, scores.length * MUTATION)
+        .slice(0, mutationSize)
         .map(({node}) => node);
       const mutatePopulation = mutate({
         population: mutationCandidates
       });
 
-      // Termination condition
-      let sum = 0;
-      scores.slice(0, scores.length * 0.05).forEach(function ({score}) {
-        sum += score;
-      });
-      averageScore = sum / (scores.length * 0.05);
+      console.log(`...Mutation population size: ${mutatePopulation.length}`);
 
+      // Termination condition
+      best.push(scores[0].score);
+      const prevDelta = delta;
+      if (best.length >= 2) {
+        delta = best[best.length - 2] - best[best.length - 1];
+      }
+
+      if (prevDelta === delta) {
+        iterations++;
+      } else {
+        iterations = 1;
+      }
+
+      // Next generation
       population = [
         ...crossoverPopulation,
         ...replicationCandidates.map(({node}) => node),
@@ -94,9 +123,11 @@ const examples = new Map([
       const re = treeToRegex(node);
       examples.forEach(function (expectedStr, string) {
         const match = string.match(re);
-        console.log(match);
+        console.log(match[0]);
       });
     });
+
+    console.log(best);
   } catch (err) {
     console.error(err);
   }
@@ -109,23 +140,14 @@ function calculateFitness({population, examples}) {
       const re = treeToRegex(node);
 
       let score = 0;
-      let matches = 0;
       examples.forEach(function (expectedStr, string) {
         const match = string.match(re);
-
-        if (!match) {
-          return;
-        }
-
-        const actualStr = match[0];
+        const actualStr = match ? match[0] : '';
 
         score += fitness({node, actualStr, expectedStr});
-        matches++;
       });
 
-      if (matches === examples.size) {
-        scores.push({node, score: score / 3});
-      }
+      scores.push({node, score: score});
     } catch (err) {
       if (!(err instanceof SyntaxError)) {
         console.error(err);

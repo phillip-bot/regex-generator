@@ -4,6 +4,7 @@ const BinaryOperator = require('../lib/binary-operator');
 const Literal = require('../lib/literal');
 const Operator = require('../lib/operator');
 const Range = require('../lib/range');
+const random = require('../lib/random');
 const utils = require('../lib/utils');
 
 const crossover = function (a, b) {
@@ -11,19 +12,54 @@ const crossover = function (a, b) {
     return [a, b];
   }
 
-  const aNodes = treeToArray(a);
-  const bNodes = treeToArray(b);
-
-  const aOperators = aNodes.filter(filterOperators);
-  const bOperators = bNodes.filter(filterOperators);
-
-  const axb = cross(aOperators, bNodes);
-  const bxa = cross(bOperators, aNodes);
-
-  return [...axb, ...bxa];
+  return [cross(a, b), cross(b, a)];
 };
 
-function cross(operators, nodes) {
+function cross(a, b) {
+  const branch = cut(b);
+  return join(a, branch);
+}
+
+function join(root, branch) {
+  const newRoot = root.copy();
+  const operators = getOperators(root);
+  const parent = utils.getRandomValueFromArray(operators);
+
+  if (parent instanceof Range) {
+    return newRoot;
+  }
+
+  if (parent instanceof BinaryOperator) {
+    if (random.number() > 0) {
+      parent.left = branch;
+    } else {
+      parent.right = branch;
+    }
+
+    return newRoot;
+  }
+
+  parent.node = branch;
+
+  return newRoot;
+}
+
+function cut(root) {
+  const operators = getOperators(root);
+  const operator = utils.getRandomValueFromArray(operators);
+  return operator.copy();
+}
+
+function getOperators(root) {
+  return root.toArray().filter(filterOperators);
+
+  function filterOperators(node) {
+    return node instanceof Operator;
+  }
+}
+
+/*
+Function cross(operators, nodes) {
   const operator = utils.getRandomValueFromArray(operators);
   const branch = utils.getRandomValueFromArray(nodes);
 
@@ -44,13 +80,6 @@ function cross(operators, nodes) {
   op.node = branch.copy();
   return [op];
 }
-
-function filterOperators(node) {
-  return node instanceof Operator;
-}
-
-function treeToArray(root) {
-  return root.toArray();
-}
+*/
 
 module.exports = {crossover};
