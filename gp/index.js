@@ -15,9 +15,9 @@ const REPLICATION = 0.2;
 const MUTATION = 0.3;
 const CROSSOVER = 0.5;
 
-const POPULATION_SIZE = 1000;
+const POPULATION_SIZE = 100000;
 const DELTA_THRESHOLD = 0.0001;
-const ITERATION_THRESHOLD = 3;
+const ITERATION_THRESHOLD = 5;
 
 const run = function (
   examples,
@@ -42,8 +42,8 @@ const run = function (
     delta > deltaThreshold || iterations < iterationsThreshold;
     generation++
   ) {
-    // Console.log(`Generation: ${generation}`);
-    // console.log(`...Delta: ${delta}`);
+    console.log(`Generation: ${generation}`);
+    console.log(`...Delta: ${delta}`);
 
     const fitnessResult = stage.fitness(population, examples);
     const sortedPopulation = fitnessResult.population;
@@ -67,7 +67,7 @@ const run = function (
     best.push(fitnessResult.scores[0]);
 
     const prevDelta = delta;
-    if (best.length >= 2) {
+    if (best.length > 1) {
       delta = best[best.length - 2] - best[best.length - 1];
     }
 

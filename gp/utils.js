@@ -83,7 +83,7 @@ utils.generateRegex = function () {
 
 function generateLiterals() {
   const characters =
-    'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-: .';
+    'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-: ."';
   const literals = Array.from(characters).map(function (character) {
     return new Literal(character);
   });
