@@ -1,6 +1,6 @@
 'use strict';
 
-const ALPHA = 0.01;
+const ALPHA = 0.05;
 
 const fitness = function ({node, actualStr, expectedStr}) {
   const weightedLength = ALPHA * node.size();

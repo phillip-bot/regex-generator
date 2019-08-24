@@ -1,6 +1,6 @@
 module.exports = {
-  extends: 'xo',
+  extends: "xo",
   rules: {
-    'indent': ['error', 2],
-  },
+    indent: ["error", 2]
+  }
 };

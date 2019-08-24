@@ -1,0 +1,13 @@
+!event tft 4pm et, 4
+!event tft5 Wed 5:00pm et, 5
+!event tft4 Tue 8:15PM ET, 8
+!event tft3 Mon 9PM ET, 9
+!event tft2 Sun 2:00pm ET, 2
+!event tft 12:45pm et, 12
+!event tft 6:00pm, 6
+!event my-test 4 pm et, 4
+!event games 2:00 pm et, 2
+!event lunch 3:52 pm et, 3
+!event test 2:00pm pt, 2
+!event tft3 9:21am pt, 9
+!event tft??? 9:00pm et, 9

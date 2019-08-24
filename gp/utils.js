@@ -88,6 +88,8 @@ function generateLiterals() {
     return new Literal(character);
   });
 
+  // prettier-ignore
+  literals.push(new Literal('\?')); // eslint-disable-line
   literals.push(new Literal('\\w'));
   literals.push(new Literal('\\d'));
 
