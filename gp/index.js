@@ -1,4 +1,6 @@
 'use strict';
+
+const bunyan = require('bunyan');
 const uuid = require('uuid');
 
 const {treeToRegex} = require('../lib/regex');
@@ -19,6 +21,13 @@ const POPULATION_SIZE = 100000;
 const DELTA_THRESHOLD = 0.0001;
 const ITERATION_THRESHOLD = 5;
 
+const LOG_LEVEL = process.env.LOG_LEVEL;
+
+const log = bunyan.createLogger({
+  name: 'regex-generator/gp',
+  level: LOG_LEVEL
+});
+
 const run = function (
   examples,
   {
@@ -37,21 +46,23 @@ const run = function (
   let best = [];
 
   let population = seedPopulation(populationSize);
+
   for (
     let generation = 0;
     delta > deltaThreshold || iterations < iterationsThreshold;
     generation++
   ) {
-    console.log(`Generation: ${generation}`);
-    console.log(`...Delta: ${delta}`);
-
+    log.info(`Generation: ${generation}`);
+    log.info('Fitness');
     const fitnessResult = stage.fitness(population, examples);
     const sortedPopulation = fitnessResult.population;
 
+    log.info('Mutation');
     const mutationResult = stage.mutate(sortedPopulation, {
       weight: mutationWeight,
       populationSize
     });
+    log.info('Cross over');
     const crossoverResult = stage.crossover(sortedPopulation, {
       weight: crossoverWeight,
       populationSize
@@ -60,7 +71,10 @@ const run = function (
     population = [
       ...crossoverResult.population,
       ...mutationResult.population,
-      ...sortedPopulation.slice(0, sortedPopulation * replicationWeight)
+      ...sortedPopulation.slice(
+        0,
+        Math.ceil(populationSize * replicationWeight)
+      )
     ];
 
     // Termination condition
@@ -69,6 +83,14 @@ const run = function (
     const prevDelta = delta;
     if (best.length > 1) {
       delta = best[best.length - 2] - best[best.length - 1];
+    }
+
+    log.info(`Best: ${best[best.length - 1]}`);
+
+    if (isNaN(delta)) {
+      log.info(best[best.length - 2]);
+      log.info(best[best.length - 1]);
+      break;
     }
 
     if (prevDelta === delta) {
@@ -95,11 +117,13 @@ const run = function (
  */
 stage.fitness = function (population, examples) {
   let results = [];
+
   population.forEach(function (node) {
     try {
       const re = treeToRegex(node);
 
       let score = 0;
+      // Const start = new Date();
       examples.forEach(function (expectedStr, string) {
         const match = string.match(re);
         const actualStr = match ? match[0] : '';
@@ -107,7 +131,18 @@ stage.fitness = function (population, examples) {
         score += fitness({node, actualStr, expectedStr});
       });
 
-      results.push({node, score: score});
+      /*
+      Const end = new Date();
+      const time = end - start;
+
+      If (time > 10) {
+        log.info(`\nTime penalty: ${time}`);
+        log.info(re);
+        score += time * 10;
+      }
+      */
+
+      results.push({node, score});
     } catch (err) {
       if (!(err instanceof SyntaxError)) {
         console.error(err);
@@ -131,11 +166,20 @@ stage.fitness = function (population, examples) {
  * @return {Object} a mutated population
  */
 stage.mutate = function (sortedPopulation, {weight, populationSize}) {
-  const size = Math.min(
-    populationSize * weight,
-    sortedPopulation.length * weight
+  const size = Math.max(
+    Math.ceil(populationSize * weight),
+    Math.ceil(sortedPopulation.length * weight)
   );
-  return {population: sortedPopulation.slice(0, size).map(mutate)};
+
+  const population = sortedPopulation.slice(0, size).map(function (node) {
+    const mutated = mutate(node);
+
+    return mutated;
+  });
+
+  return {
+    population
+  };
 };
 
 /**
@@ -144,11 +188,12 @@ stage.mutate = function (sortedPopulation, {weight, populationSize}) {
  * @return {Object} a cross over population
  */
 stage.crossover = function (sortedPopulation, {weight, populationSize}) {
-  const size = Math.min(
-    (populationSize * weight) / 2,
-    (sortedPopulation.length * weight) / 2
+  const size = Math.max(
+    Math.ceil(populationSize * weight) / 2,
+    Math.ceil(sortedPopulation.length * weight) / 2
   );
   const crossoverPopulation = sortedPopulation.slice(0, size);
+
   let population = [];
   crossoverPopulation.forEach(function (a) {
     const b = utils.getRandomValueFromArray(crossoverPopulation);

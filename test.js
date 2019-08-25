@@ -18,16 +18,22 @@ function readExamplesFromFile(path) {
   return examples;
 }
 
-const examples = readExamplesFromFile('./examples/timezones.txt');
-console.log(examples);
+(async function () {
+  try {
+    const examples = readExamplesFromFile('./examples/all.txt');
+    console.log(examples);
 
-const {seed, regex} = regexFromExamples(examples, {
-  iterationsThreshold: 10
-});
+    const {seed, regex} = await regexFromExamples(examples, {
+      iterationsThreshold: 10
+    });
 
-console.log(seed);
-console.log(regex);
+    console.log(seed);
+    console.log(regex);
 
-examples.forEach(function (substring, string) {
-  console.log(string.match(regex));
-});
+    examples.forEach(function (substring, string) {
+      console.log(string.match(regex));
+    });
+  } catch (err) {
+    console.error(err);
+  }
+})();

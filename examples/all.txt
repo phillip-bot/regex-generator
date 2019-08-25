@@ -1,0 +1,8 @@
+!event tft Mon 9:00pm et,!event tft Mon 9:00pm et
+!event PIZza Tue 9:00pm et,!event PIZza Tue 9:00pm et
+!event Today Wed 9:00pm et,!event Today Wed 9:00pm et
+!event Weeeee Thu 9:00pm et,!event Weeeee Thu 9:00pm et
+!event GAMES Fri 9:00pm et,!event GAMES Fri 9:00pm et
+!event gmes Sat 9:00pm et,!event gmes Sat 9:00pm et
+!event W24 Sun 9:00pm et,!event W24 Sun 9:00pm et
+!reschedule W24 Sun 9:00pm et,

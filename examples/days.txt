@@ -1,0 +1,7 @@
+!event tft Mon 9:00pm et, Mon
+!event PIZza Tue 9:00pm et, Tue
+!event Today Wed 9:00pm et, Wed
+!event Weeeee Thu 9:00pm et, Thu
+!event GAMES Fri 9:00pm et, Fri
+!event gmes Sat 9:00pm et, Sat
+!event W24 Sun 9:00pm et, Sun

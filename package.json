@@ -13,6 +13,9 @@
     "eslint-config-xo": "^0.26.0"
   },
   "dependencies": {
+    "bluebird": "^3.5.5",
+    "bunyan": "^1.8.12",
+    "cli-progress": "^3.0.0",
     "seedrandom": "^3.0.3",
     "uuid": "^3.3.3"
   }
