@@ -3,6 +3,7 @@
 const bunyan = require('bunyan');
 const uuid = require('uuid');
 
+const {generatePossibleRegexes} = require('../lib/regex-from-string');
 const {treeToRegex} = require('../lib/regex');
 
 const utils = require('./utils');
@@ -12,6 +13,8 @@ const {mutate} = require('./mutate');
 const {crossover} = require('./crossover');
 
 const stage = {};
+
+const SATURATION = 1000;
 
 const REPLICATION = 0.2;
 const MUTATION = 0.3;
@@ -31,12 +34,24 @@ const log = bunyan.createLogger({
 const run = function (
   examples,
   {
+    weightedSize = false,
+
+    // Educated guesses
+    guessRegex = false,
+    saturation = SATURATION,
+
+    // Population
+    population = [],
+    populationSize = POPULATION_SIZE,
+
+    // Population weights
     mutationWeight = MUTATION,
     crossoverWeight = CROSSOVER,
     replicationWeight = REPLICATION,
+
+    // Termination conditions
     iterationsThreshold = ITERATION_THRESHOLD,
-    deltaThreshold = DELTA_THRESHOLD,
-    populationSize = POPULATION_SIZE
+    deltaThreshold = DELTA_THRESHOLD
   } = {}
 ) {
   const seed = `seed-${uuid()}`;
@@ -45,7 +60,15 @@ const run = function (
   let iterations = 0;
   let best = [];
 
-  let population = seedPopulation(populationSize);
+  if (guessRegex) {
+    examples.forEach(function (substring) {
+      for (let i = 0; i < saturation; i++) {
+        population = [...population, ...generatePossibleRegexes(substring)];
+      }
+    });
+  }
+
+  population = [...population, ...seedPopulation(populationSize)];
 
   for (
     let generation = 0;
@@ -54,7 +77,7 @@ const run = function (
   ) {
     log.info(`Generation: ${generation}`);
     log.info('Fitness');
-    const fitnessResult = stage.fitness(population, examples);
+    const fitnessResult = stage.fitness(population, examples, weightedSize);
     const sortedPopulation = fitnessResult.population;
 
     log.info('Mutation');
@@ -115,7 +138,7 @@ const run = function (
  * @param {Map<String, String>} examples - examples to test fitness
  * @returns {Object} a sorted population and sorted scores
  */
-stage.fitness = function (population, examples) {
+stage.fitness = function (population, examples, weightedSize) {
   let results = [];
 
   population.forEach(function (node) {
@@ -128,7 +151,7 @@ stage.fitness = function (population, examples) {
         const match = string.match(re);
         const actualStr = match ? match[0] : '';
 
-        score += fitness({node, actualStr, expectedStr});
+        score += fitness({node, actualStr, expectedStr, weightedSize});
       });
 
       /*

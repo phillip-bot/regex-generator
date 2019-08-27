@@ -2,8 +2,18 @@
 
 const ALPHA = 0.05;
 
-const fitness = function ({node, actualStr, expectedStr}) {
-  const weightedLength = ALPHA * node.size();
+const fitness = function ({
+  node,
+  actualStr,
+  expectedStr,
+  weightedSize = false
+}) {
+  let weightedLength = ALPHA * node.size();
+
+  if (weightedSize) {
+    weightedLength = ALPHA * node.weightedSize();
+  }
+
   return weightedLength + editDistance(actualStr, expectedStr);
 };
 

@@ -78,7 +78,8 @@ utils.generateRegex = function () {
       });
     } else {
       operation = new Interval(literal, {
-        min: Math.ceil(random.number() * 10)
+        min: Math.ceil(random.number() * 10),
+        max: Math.ceil(random.number() * 10)
       });
     }
   } else if (Operation === Range) {

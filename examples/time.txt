@@ -1,0 +1,5 @@
+!event tft 4:00pm et,4:00pm et
+!event tft 12:20 am pt,12:20 am pt
+!event tft 9:53 am ct,9:53 am ct
+!event tft5 1:22 pm mt,1:22 pm mt
+!event tft123 1:23am pt,1:23am pt

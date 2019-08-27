@@ -18,13 +18,15 @@ function readExamplesFromFile(path) {
   return examples;
 }
 
-(async function () {
+(function () {
   try {
-    const examples = readExamplesFromFile('./examples/all.txt');
+    const examples = readExamplesFromFile('./examples/timezones.txt');
     console.log(examples);
 
-    const {seed, regex} = await regexFromExamples(examples, {
-      iterationsThreshold: 10
+    const {seed, regex} = regexFromExamples(examples, {
+      iterationsThreshold: 5,
+      weightedSize: true,
+      guessRegex: true
     });
 
     console.log(seed);
