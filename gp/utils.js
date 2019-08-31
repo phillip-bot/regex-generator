@@ -18,7 +18,7 @@ const {
 } = require('../lib/regex');
 
 const literals = generateLiterals();
-const operations = [Bar, Concat, Interval, List, Plus, Question, Star];
+const operations = [Bar, Concat, Interval, Plus, Question, Star];
 
 const utils = {};
 
@@ -114,7 +114,7 @@ utils.getAlphaNumericLiteral = function () {
 
 function generateLiterals() {
   const characters =
-    'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-: "!.';
+    'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-: "!';
   const literals = Array.from(characters).map(function (character) {
     return new Literal(character);
   });

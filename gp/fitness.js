@@ -1,6 +1,6 @@
 'use strict';
 
-const ALPHA = 0.05;
+const ALPHA = 0.025;
 
 const fitness = function ({
   node,

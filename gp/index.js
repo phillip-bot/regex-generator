@@ -109,7 +109,10 @@ const run = function (
     }
 
     log.info(`Best: ${best[best.length - 1]}`);
-
+    const regex = treeToRegex(
+      stage.fitness(population, examples).population[0]
+    );
+    log.info(`Best regex: ${regex}`);
     if (isNaN(delta)) {
       log.info(best[best.length - 2]);
       log.info(best[best.length - 1]);
