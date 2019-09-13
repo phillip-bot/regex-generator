@@ -20,8 +20,6 @@ console.log(regex);
 examples.forEach(function(substring, string) {
   const match = string.match(regex);
   console.log(match[0]);
-
-
 });
 
 /* This prints something like:
